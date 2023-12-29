@@ -166,11 +166,12 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
                               // do{addUser();}while(formkey.currentState!.validate());
                               if (formkey.currentState!.validate()) {
                                 print("function is called");
-                                addUser()
-                                    .then(
-                                        (value) => Navigator.of(context).pop())
-                                    .then((value) => showPopup());
-                                Navigator.of(context).pop();
+                                addUser();
+                                // addUser()
+                                //     .then(
+                                //         (value) => Navigator.of(context).pop())
+                                //     .then((value) => showPopup());
+                                // Navigator.of(context).pop();
                               }
                             },
                           ),
@@ -203,28 +204,37 @@ class _AddCustomerPageState extends State<AddCustomerPage> {
     var res = await http.post(Uri.parse(apiUrl), body: map);
     // print(res.body.toString());
     if (res.statusCode == 400) {
-      setState(() {
-        errmsg = 'User Name already exist.';
-      });
+      showPopup(context, jsonDecode(res.body.toString())['msg'],
+          jsonDecode(res.body.toString())['status']);
       print(res.body.toString());
     }
-    // if (res.statusCode == 200) {
-    //
-    // }
-    return res;
+    if (res.statusCode == 200) {
+      showPopup(context, jsonDecode(res.body.toString())['msg'],
+          jsonDecode(res.body.toString())['status']);
+      return res;
+    }
+
     // print(res.body);
   }
 
-  void showPopup() {
+  void showPopup(BuildContext context, String message, bool value) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           // title: Text("Login Status"),
-          content: Text("recoed added successfully"),
+          content: Text(
+            message,
+            style: TextStyle(
+                color: value ? Colors.black : Colors.red, fontSize: 25),
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () {
+                if (value) {
+                  Navigator.of(context).pop();
+                  return Navigator.of(context).pop();
+                }
                 return Navigator.of(context).pop();
 
                 // Close the dialog
